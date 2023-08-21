@@ -1,0 +1,202 @@
+﻿@model User
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <!-- Add your CSS styles here or link to an external stylesheet -->
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .profile-name {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .profile-description {
+            margin-bottom: 10px;
+        }
+
+        .profile-info {
+            margin-left: 15px;
+        }
+
+        .specialization-heading {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .specialization-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 4px 10px;
+            border-radius: 3px;
+            color: #555;
+            position: relative;
+            top: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .specialization-items-container {
+            display: flex; /* Display specialization items in a row */
+            flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            min-height: 150px;
+            flex-direction: column;
+        }
+
+        .post-info {
+            /* Add a container for profile-name and profile-description */
+            display: flex;
+            flex-direction: column;
+            margin-left: 15px;
+            /*margin-bottom: 10px;*/
+        }
+
+        .post-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .post-description {
+            margin-bottom: 10px;
+        }
+
+        .tag-heading {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tag-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 4px 10px;
+            border-radius: 3px;
+            color: #555;
+            position: relative;
+            top: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .tag-container {
+            display: flex; /* Display specialization items in a row */
+            flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+            margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            display: flex; /* Display specialization items in a row */
+            flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+            margin-top: 15px;
+        }
+
+        .change-post-btn {
+            margin-right: 5px;
+        }
+
+        .user-posts {
+            margin-bottom: 16px;
+            margin-top: 4px;
+            margin-left: 15px;
+            font-size: 32px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="profile-name">Вы уверены, что хотите удалить этого пользователя?</h1>
+        <div class="profile-card">
+            <div class="profile-info">
+                <h1 class="profile-name">@Model.Name @Model.Surname</h1>
+                <p class="profile-description">@Model.Description</p>
+                <p class="specialization-heading">Информация об обучении:</p>
+                @{
+                    var university = Model.University;
+                    var faculty = Model.Faculty;
+                    var courseNum = Model.CourseNum;
+
+                    if (university == null)
+                    {
+                        university = "ВУЗ не указан";
+                    }
+
+                    if (faculty == null)
+                    {
+                        faculty = "Факультет не указан";
+                    }
+                }
+
+                <p style="display:inline" class="profile-description">
+                    @university, @faculty,
+
+                    @if (courseNum == null)
+
+                    {
+                    <p style="display:inline">Курс не указан</p>
+                    }
+
+                    else
+                    {
+                    <p style="display:inline">@Model.CourseNum курс</p>
+                    }
+
+                </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <form asp-controller="Account" asp-action="DeleteAccount" method="post">
+                <input type="hidden" asp-for="Id" />
+                <input type="submit" value="Confirm" class="btn btn-danger float-right mt-3" />
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+﻿@using tsuHelp.Models
+@model User
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <link rel="stylesheet" href="~/css/styles.css" />
+    <link rel="stylesheet" href="~/css/modal.css" />
+
+</head>
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <div class="avatar-and-profile-info">
+                <div class="big-avatar-placement">
+                    @if (@Model.ProfileAvatar != null)
+                    {
+                        <div class="big-avatar-container">
+                            <img class="big-avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(@Model.ProfileAvatar))" />
+                        </div>
+                    }
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">@Model.Name @Model.Surname</h1>
+                    <p class="profile-description">@Model.Description</p>
+                    <p class="specialization-heading">Информация об обучении:</p>
+                    @{
+                        var university = Model.University;
+                        var faculty = Model.Faculty;
+                        var courseNum = Model.CourseNum;
+
+                        if (university == null)
+                        {
+                            university = "ВУЗ не указан";
+                        }
+
+                        if (faculty == null)
+                        {
+                            faculty = "Факультет не указан";
+                        }
+                    }
+
+                    <p style="display:inline" class="profile-description">
+                        @university, @faculty,
+
+                        @if (courseNum == null)
+
+                        {
+                        <p style="display:inline">Курс не указан</p>
+                        }
+
+                        else
+                        {
+                        <p style="display:inline">@Model.CourseNum курс</p>
+                        }
+
+                    </p>
+                </div>
+
+                @*<a type="btn btn-success" asp-controller="Message" asp-action="Index" asp-route-id ="@Model.Id" class="btn btn-sm post-author">Отправить сообщение</a>*@
+
+            </div>
+
+            <div class="specialization-items-container">
+                @foreach (var subject in Model.Subjects)
+                {
+                    <span class="specialization-item">@subject.Subject</span>
+                }
+            </div>
+
+            <a type="btn btn-success" asp-controller="Message" asp-action="Index" asp-route-recieverId="@Model.Id" class="btn btn-sm btn-outline-secondary mt-4">Отправить сообщение</a>
+            <button id="openDealModal" class="btn btn-sm btn-outline-secondary mt-4 btn-open-deal-modal">Заключить сделку</button>
+
+        </div>
+
+        <h1 class="user-posts">Посты пользователя:</h1>
+
+        @foreach (var post in Model.Posts)
+        {
+
+
+            <div class="post-card">
+
+                <div class="avatar-and-name-container">
+
+                    <div class="post-author-avatar-container">
+                        <img class="post-author-avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(post.User.ProfileAvatar))" />
+                    </div>
+
+                    <div class="post-author-container">                        
+                        <a type="btn btn-success" asp-controller="User" asp-action="Detail" asp-route-id="@post.User.Id" class="btn btn-sm post-author">@post.User.Name @post.User.Surname</a>                        
+                        <p class="date-published">27 июл в 12:23</p>
+                    </div>
+                </div>
+
+                <div class="post-info">
+                    <div class="post-heading">@post.Title</div>
+                    <p class="post-description">@post.Description</p>
+                </div>
+
+                <div class="tag-container">
+                    @foreach (var tag in post.Tags)
+                    {
+                        <span class="tag-item">@tag.Tag</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+    <div id="dealModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeDealModal">&times;</span>
+            <h2>Заключение сделки</h2>
+            <!-- Добавьте содержимое модального окна здесь -->
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="~/js/modal.js"></script>
+
+
+
+
+
+                    

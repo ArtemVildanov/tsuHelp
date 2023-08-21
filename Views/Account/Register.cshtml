@@ -1,0 +1,79 @@
+﻿@using tsuHelp.Data;
+@using tsuHelp.ViewModels
+@model RegisterViewModel
+
+@{
+    ViewData["Title"] = "Sign up";
+}
+
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <p>
+            <h4>Sign up for a new account</h4>
+        </p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="col-md-12 alert alert-danger">
+                <span><b>Sorry!</b> - @TempData["Error"] </span>
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-md-8 offset-2">
+                <form method="post" asp-action="Register">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Surname" class="control-label"></label>
+                        <input asp-for="Surname" class="form-control" />
+                        <span asp-validation-for="Surname" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Email" class="control-label"></label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Password" class="control-label"></label>
+                        <input asp-for="Password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="ConfirmPassword" class="control-label"></label>
+                        <input asp-for="ConfirmPassword" class="form-control" />
+                        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <h4>Выберите предметы</h4>
+                    <div>
+                        @for (var index = 0; index < Model.Subjects.Count(); index++)
+                        {
+                            <input type="checkbox" asp-for="@Model.Subjects[index].IsChecked" class="form-check-input" />
+                            <label class="form-check-label" asp-for="@Model.Subjects[index].IsChecked">
+                                @Model.Subjects[index].Subject
+                            </label>
+                            <input type="hidden" asp-for="@Model.Subjects[index].Id" />
+                            <input type="hidden" asp-for="@Model.Subjects[index].Subject" />
+                            <br />
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <input class="btn btn-outline-success float-right" type="submit" value="Sign up" />
+                        <a class="btn btn-outline-secondary" asp-controller="Race" asp-action="Index">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

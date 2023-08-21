@@ -1,0 +1,65 @@
+﻿@using tsuHelp.ViewModels
+@model List<PostViewModel>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+    
+    <link rel="stylesheet" href="~/css/styles.css" />
+</head>
+<body>
+    <div class="container">
+        <a type="btn btn-success" asp-controller="Posts" asp-action="Create" class="btn btn-sm btn-outline-secondary mb-2">Создать пост</a>
+        @foreach (var post in Model)
+        {
+            <div class="post-card">
+                <div class="avatar-and-name-container">
+
+                    <div class="post-author-avatar-container">
+                        <img class="post-author-avatar" src="data:image/jpeg;base64,@(Convert.ToBase64String(post.User.ProfileAvatar))" />
+                    </div>
+
+                    <div class="post-author-container">
+                        @if (post.UserId == post.CurrentUserId)
+                        {
+                            <a type="btn btn-success" asp-controller="Dashboard" asp-action="Index" class="btn btn-sm post-author">@post.User.Name @post.User.Surname</a>
+                        }
+                        else
+                        {
+                            <a type="btn btn-success" asp-controller="User" asp-action="Detail" asp-route-id="@post.User.Id" class="btn btn-sm post-author">@post.User.Name @post.User.Surname</a>
+                        }
+                        <p class="date-published">27 июл в 12:23</p>
+                    </div>
+                </div>
+
+                <div class="post-info">
+                    <div class="post-heading">@post.Title</div>
+                    <p class="post-description">@post.Description</p>
+                </div>
+
+                <div class="tag-container">
+                    @foreach (var tag in post.Tags)
+                    {
+                        <span class="tag-item">@tag.Tag</span>
+                    }
+                </div>
+
+                @if(post.UserId == post.CurrentUserId)
+                {
+                    <div class="buttons-container">
+                        <a type="btn btn-success" asp-controller="Posts" asp-action="EditPost" asp-route-id="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Изменить</a>
+                        <a type="btn btn-success" asp-controller="Posts" asp-action="Delete" asp-route-id="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Удалить</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="buttons-container">
+                        <a type="btn btn-success" asp-controller="Message" asp-action="Index" asp-route-recieverId="@post.UserId" asp-route-postId="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Откликнуться</a>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</body>
+</html>

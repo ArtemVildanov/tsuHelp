@@ -1,0 +1,135 @@
+﻿@model Post
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Удалить пост</title>
+    <!-- Add your CSS styles here or link to an external stylesheet -->
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .post-info {
+            /* Add a container for profile-name and profile-description */
+            display: flex;
+            flex-direction: column;
+            margin-left: 15px;
+            /*margin-bottom: 10px;*/
+        }
+
+        .profile-name {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .profile-description {
+            margin-bottom: 10px;
+        }
+
+        .post-card {
+            border: 1px solid #ddd;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            min-height: 150px;
+            flex-direction: column;
+        }
+
+        .post-heading {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .post-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .post-description {
+            margin-bottom: 10px;
+        }
+
+        .tag-heading {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .tag-item {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 4px 10px;
+            border-radius: 3px;
+            color: #555;
+            position: relative;
+            top: 15px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .tag-container {
+            display: flex; /* Display specialization items in a row */
+            flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+            margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            display: flex; /* Display specialization items in a row */
+            flex-wrap: wrap; /* Allow items to wrap to the next line if necessary */
+            margin-top: 15px;
+        }
+
+        .change-post-btn {
+            margin-right: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="post-heading">Вы уверены, что хотите удалить этот пост?</div>
+    <div class="container"> 
+        <div class="post-card">
+            <div class="post-info">
+                <div class="post-heading">@Model.Title</div>
+                <p class="post-description">@Model.Description</p>
+            </div>
+
+            <div class="tag-container">
+                @foreach (var tag in Model.Tags)
+                {
+                    <span class="tag-item">@tag.Tag</span>
+                }
+            </div>
+        </div>
+    </div>
+    @*<div class="form-group">
+        <a type="btn btn-success" asp-controller="Posts" asp-action="DeletePost" method="post" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Удалить</a>
+    </div>*@
+    <div class="form-group">
+        <form asp-controller="Posts" asp-action="DeletePost" method="post">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Confirm" class="btn btn-danger float-right mt-3" />
+        </form>
+    </div>
+</div>
+</body>
+</html>

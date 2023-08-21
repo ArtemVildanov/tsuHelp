@@ -1,0 +1,171 @@
+﻿@using tsuHelp.ViewModels
+@using tsuHelp.Models
+@model ChatViewModel
+
+<head>
+    <style>
+
+        .messages-card {
+            width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Стили для списка сообщений */
+        #messagesList {
+            list-style-type: none;
+            padding: 0;
+            max-height: 500px;
+            overflow-y: scroll;
+/*            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
+
+
+        }
+
+        /* Стили для отдельного сообщения */
+        .message {
+
+            margin: 10px 15px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .post {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .all-messages {
+            width: 650px;
+
+        }
+            
+        .message-button-container {
+            align-items: flex-start;
+            flex-direction: row;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message-button-post-container {
+            align-items: flex-start;
+            flex-direction: column;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .text-input {
+            width: 400px;
+            height: 50px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .text-input-container {
+            display: flex;
+            align-items: flex-start;
+        }
+
+    </style>
+    @*<link rel="stylesheet" href="~/css/styles.css" />*@
+</head>
+
+<div class="messages-card">
+    <div class="container">
+        <input type="hidden" id="senderId" name="SenderId" value="@Model.SenderId" />
+        <input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
+        @if (Model.Post != null)
+        {
+            <input type="hidden" id="postId" name="PostId" value="@Model.Post.Id" />
+        }
+        else
+        {
+            <input type="hidden" id="postId" name="PostId" value="-1" />
+        }
+
+        <div class="row p-1">
+            <div class="all-messages">
+                <ul id="messagesList">
+                    @if (Model.Messages != null)
+                    {
+                        foreach (var message in Model.Messages)
+                        {
+                            string authorName = message.AuthorId == Model.SenderId
+                            ? $"{Model.Sender.Name} {Model.Sender.Surname}"
+                            : $"{Model.Reciever.Name} {Model.Reciever.Surname}";
+
+                            
+
+                           
+
+                            <li class="message">
+                                @if (message.Post != null)
+                                {
+                                    <div class="post">
+                                        <strong>@message.Post.Title</strong>
+                                        <br />
+                                            @message.Post.Description
+                                        <br />
+                                    </div>
+                                }
+                                <strong>@authorName</strong>
+                                <br />
+                                    @message.Content
+                                <br />
+                                <span class="message-time">@message.Created</span>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+
+
+
+        <div class="message-button-post-container">
+
+            @if (Model.Post != null)
+            {
+                <div id="postBox" class="message">
+                    <strong>@Model.Post.Title</strong>
+                    <br />
+                    @Model.Post.Description
+                    <br />
+                </div>
+            }
+
+            <div class="message-button-container">
+                <div class="row p-1">
+                    <div class="text-input-container">
+                        <textarea class="text-input" id="messageInput"></textarea>
+                    </div>
+                </div>
+                <div class="row p-1"> 
+                    <div class="col-6 text-end">
+                        <input type="button" id="sendButton" value="Send Message" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/chat.js"></script>
+
+
+
+
+

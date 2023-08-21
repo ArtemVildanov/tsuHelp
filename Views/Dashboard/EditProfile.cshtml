@@ -1,0 +1,71 @@
+﻿@using tsuHelp.ViewModels
+@using tsuHelp.Data;
+@model EditProfileViewModel
+
+<form asp-action="EditProfile" method="post" enctype="multipart/form-data" class="row">
+    <input type="hidden" id="Id" name="Id" asp-for="Id" />
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="Description">Описание:</label>
+            <textarea asp-for="Description" type="text" class="form-control form-control-lg"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="Email">Почта:</label>
+            <input asp-for="Email" type="text" class="form-control form-control-lg" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="University">ВУЗ:</label>
+            <input asp-for="University" type="text" class="form-control form-control-lg" />
+            <span asp-validation-for="University" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="Faculty">Факультет:</label>
+            <input asp-for="Faculty" type="text" class="form-control form-control-lg" />
+            <span asp-validation-for="Faculty" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="form-group">
+            <label asp-for="CourseNum">На каком курсе обучаетесь:</label>
+            <input asp-for="CourseNum" type="text" class="form-control form-control-lg" />
+            <span asp-validation-for="CourseNum" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div>
+        <label>Аватар</label>
+        <input asp-for="ProfileAvatar" type="file" class="form-control" />
+    </div>
+
+    <h4>Выберите предметы</h4>
+    <div>
+        @for (var index = 0; index < Model.Subjects.Count(); index++)
+        {
+            <input type="checkbox" asp-for="@Model.Subjects[index].IsChecked" class="form-check-input" />
+            <label class="form-check-label" asp-for="@Model.Subjects[index].IsChecked">
+                @Model.Subjects[index].Subject
+            </label>
+            <input type="hidden" asp-for="@Model.Subjects[index].Id" />
+            <input type="hidden" asp-for="@Model.Subjects[index].Subject" />
+            <br />
+        }
+    </div>
+
+    <div class="col-12">
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Save changes</button>
+        </div>
+    </div>
+</form>

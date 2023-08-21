@@ -1,0 +1,46 @@
+﻿@using tsuHelp.Data;
+@using tsuHelp.ViewModels
+@model EditPostViewModel
+
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <div class="row">
+            <div class="col-md-8 offset-2">
+                <form method="post" asp-action="EditPost">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" id="UserId" name="UserId" asp-for="UserId" />
+                    <div class="form-group">
+                        <label asp-for="Title" class="control-label">Заголовок</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Description" class="control-label">Описание</label>
+                        <textarea asp-for="Description" class="form-control">Введите описание</textarea>
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <h4>Выберите предметы</h4>
+                    <div>
+                        @for (var index = 0; index < Model.Tags.Count(); index++)
+                        {
+                            <input type="checkbox" asp-for="@Model.Tags[index].IsChecked" class="form-check-input" />
+                            <label class="form-check-label" asp-for="@Model.Tags[index].IsChecked">
+                                @Model.Tags[index].Subject
+                            </label>
+                            <input type="hidden" asp-for="@Model.Tags[index].Id" />
+                            <input type="hidden" asp-for="@Model.Tags[index].Subject" />
+                            <br />
+                        }
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <a class="btn btn-outline-secondary" asp-controller="Home" asp-action="Index">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
