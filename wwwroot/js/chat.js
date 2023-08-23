@@ -66,6 +66,18 @@ document.addEventListener("DOMContentLoaded", function () {// отображен
     });
 });
 
+const chatLinks = document.querySelectorAll('.chat-list a');
+
+chatLinks.forEach(link => {// перемещение между чатами в списке чатов
+    link.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const recieverId = document.getElementById('chatRecieverId').value; // Предполагается, что вы добавите атрибут с id получателя к вашей ссылке
+        const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`);
+        const chatContent = await response.text();
+        document.querySelector('.selected-chat').innerHTML = chatContent;
+    });
+});
+
 // Получите элемент списка сообщений
 //var messagesList = document.getElementById("messagesList");
 

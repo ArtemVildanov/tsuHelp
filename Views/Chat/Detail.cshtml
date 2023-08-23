@@ -1,6 +1,5 @@
 ﻿@using tsuHelp.ViewModels
-@using tsuHelp.Models
-@model DetailChatViewModel
+@model ChatViewModel
 
 <head>
     <style>
@@ -82,86 +81,103 @@
     @*<link rel="stylesheet" href="~/css/styles.css" />*@
 </head>
 
-<div class="messages-card">
-    <div class="container">
-        <input type="hidden" id="senderId" name="SenderId" value="@Model.SenderId" />
-        <input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
-        @if (Model.Post != null)
+<div class="chat-list">
+    <ul>
+        @foreach (var chat in Model.Chats) // Замените на реальное свойство с вашим списком чатов
         {
-            <input type="hidden" id="postId" name="PostId" value="@Model.Post.Id" />
+            <li>
+                <input type="hidden" id="chatRecieverId" name="chatRecieverId" value="@chat.RecieverId" />
+                <a href="@Url.Action("Detail", new { recieverId = chat.RecieverId })">Chat with @chat.Reciever.Name @chat.Reciever.Surname</a>
+            </li>
         }
-        else
-        {
-            <input type="hidden" id="postId" name="PostId" value="-1" />
-        }
-
-        <div class="row p-1">
-            <div class="all-messages">
-                <ul id="messagesList">
-                    @if (Model.Messages != null)
-                    {
-                        foreach (var message in Model.Messages)
-                        {
-                            string authorName = message.AuthorId == Model.SenderId
-                            ? $"{Model.Sender.Name} {Model.Sender.Surname}"
-                            : $"{Model.Reciever.Name} {Model.Reciever.Surname}";
-
-                            
-
-                           
-
-                            <li class="message">
-                                @if (message.Post != null)
-                                {
-                                    <div class="post">
-                                        <strong>@message.Post.Title</strong>
-                                        <br />
-                                            @message.Post.Description
-                                        <br />
-                                    </div>
-                                }
-                                <strong>@authorName</strong>
-                                <br />
-                                    @message.Content
-                                <br />
-                                <span class="message-time">@message.Created</span>
-                            </li>
-                        }
-                    }
-                </ul>
-            </div>
-        </div>
-
-
-
-        <div class="message-button-post-container">
-
-            @if (Model.Post != null)
-            {
-                <div id="postBox" class="message">
-                    <strong>@Model.Post.Title</strong>
-                    <br />
-                    @Model.Post.Description
-                    <br />
-                </div>
-            }
-
-            <div class="message-button-container">
-                <div class="row p-1">
-                    <div class="text-input-container">
-                        <textarea class="text-input" id="messageInput"></textarea>
-                    </div>
-                </div>
-                <div class="row p-1"> 
-                    <div class="col-6 text-end">
-                        <input type="button" id="sendButton" value="Send Message" />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </ul>
 </div>
 
+<div class="selected-chat">
+    @if (Model.SelectedChat != null)
+    {
+        <div class="messages-card">
+            <div class="container">
+                <input type="hidden" id="senderId" name="SenderId" value="@Model.SelectedChat.SenderId" />
+                <input type="hidden" id="recieverId" name="RecieverId" value="@Model.SelectedChat.RecieverId" />
+                @if (Model.SelectedChat.Post != null)
+                {
+                    <input type="hidden" id="postId" name="PostId" value="@Model.SelectedChat.Post.Id" />
+                }
+                else
+                {
+                    <input type="hidden" id="postId" name="PostId" value="-1" />
+                }
+
+                <div class="row p-1">
+                    <div class="all-messages">
+                        <ul id="messagesList">
+                            @if (Model.SelectedChat.Messages != null)
+                            {
+                                foreach (var message in Model.SelectedChat.Messages)
+                                {
+                                    string authorName = message.AuthorId == Model.SelectedChat.SenderId
+                                    ? $"{Model.SelectedChat.Sender.Name} {Model.SelectedChat.Sender.Surname}"
+                                    : $"{Model.SelectedChat.Reciever.Name} {Model.SelectedChat.Reciever.Surname}";
+
+
+
+
+
+                                    <li class="message">
+                                        @if (message.Post != null)
+                                        {
+                                            <div class="post">
+                                                <strong>@message.Post.Title</strong>
+                                                <br />
+                                                @message.Post.Description
+                                                <br />
+                                            </div>
+                                        }
+                                        <strong>@authorName</strong>
+                                        <br />
+                                        @message.Content
+                                        <br />
+                                        <span class="message-time">@message.Created</span>
+                                    </li>
+                                }
+                            }
+                        </ul>
+                    </div>
+                </div>
+
+
+
+                <div class="message-button-post-container">
+
+                    @if (Model.SelectedChat.Post != null)
+                    {
+                        <div id="postBox" class="message">
+                            <strong>@Model.SelectedChat.Post.Title</strong>
+                            <br />
+                            @Model.SelectedChat.Post.Description
+                            <br />
+                        </div>
+                    }
+
+                    <div class="message-button-container">
+                        <div class="row p-1">
+                            <div class="text-input-container">
+                                <textarea class="text-input" id="messageInput"></textarea>
+                            </div>
+                        </div>
+                        <div class="row p-1">
+                            <div class="col-6 text-end">
+                                <input type="button" id="sendButton" value="Send Message" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+   
+</div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/chat.js"></script>
 

@@ -69,10 +69,8 @@
                 }
             </div>
 
-            <a type="btn btn-success" asp-controller="Chat" asp-action="Index" asp-route-recieverId="@Model.Id" class="btn btn-sm btn-outline-secondary mt-4">Отправить сообщение</a>
+            <a type="btn btn-success" asp-controller="Chat" asp-action="Detail" asp-route-recieverId="@Model.Id" class="btn btn-sm btn-outline-secondary mt-4">Отправить сообщение</a>
 
-            <a type="btn btn-success" asp-controller="Chat" asp-action="ChatListPartial" class="btn btn-sm btn-outline-secondary mt-4">Список чатов</a>
-            <a type="btn btn-success" asp-controller="Chat" asp-action="ChatAreaPartial" class="btn btn-sm btn-outline-secondary mt-4">Мессенджер</a>
 
             <button id="openDealModal" class="btn btn-sm btn-outline-secondary mt-4 btn-open-deal-modal">Заключить сделку</button>
 

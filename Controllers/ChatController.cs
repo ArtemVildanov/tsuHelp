@@ -24,55 +24,54 @@ namespace tsuHelp.Controllers
             _postsRepository = postsRepository;
         }
 
-        public IActionResult Index(string recieverId, int postId = -1)
+        public IActionResult Index()
         {
-			//если пост не был прикреплен к сообщению, то айди поста -1 
-			//пост прикреплен к сообщению если был переход по "откликнуться"
-
-			var chatInfoViewModel = new ChatInfoViewModel
-            {
-                recieverId = recieverId,
-                postId = postId,
-            };
-            
-            return View(chatInfoViewModel);
-
+            return View();
         }
 
-        public IActionResult ChatListPartial()
+
+        public IActionResult Detail(string recieverId, int postId = -1)
         {
-            var currentUserId = _userRepository.GetCurrentUserId();
-            var userChats = _chatRepository.GetAllChatsByUserId(currentUserId);
-            foreach (var chat in userChats)
-            {
-                chat.FirstUser = _userRepository.GetUserById(chat.FirstUserId);
-                chat.SecondUser = _userRepository.GetUserById(chat.SecondUserId);
-            }
-
-            var chatList = new ChatListViewModel
-            {
-                chats = userChats,
-                currentUserId = currentUserId
-            };
-
-
-            return PartialView(chatList);
-        }
-
-        public IActionResult ChatAreaPartial(ChatInfoViewModel model)
-        {
-            var recieverId = model.recieverId;
-            var postId = model.postId;
 
             //если пост не был прикреплен к сообщению, то айди поста -1 
             //пост прикреплен к сообщению если был переход по "откликнуться"
 
             var reciever = _userRepository.GetUserById(recieverId);
-            var sender = _userRepository.GetCurrentUser();
-            var chat = _chatRepository.GetChatByBothUsersId(reciever.Id, sender.Id);
-            if(chat == null)
+            var sender = _userRepository.GetCurrentUser();// отправитель это текущий авторизированный пользователь
+            var selectedChat = _chatRepository.GetChatByBothUsersId(reciever.Id, sender.Id);
+            var chats = _chatRepository.GetAllChatsByUserId(sender.Id);
+
+            var chatList = new List<SelectedChatViewModel>();
+            foreach (var chat in chats)//заполняем список чатов, 
+            {                          //определяем отправителя как авторизированного пользователя,
+                User _sender = null;   //получатель - второй пользователь чата
+                User _reciever = null;
+
+                if (chat.FirstUserId == sender.Id)
+                {
+                    _sender = _userRepository.GetUserById(chat.FirstUserId);
+                    _reciever = _userRepository.GetUserById(chat.SecondUserId);
+                }
+
+                if (chat.SecondUserId == sender.Id)
+                {
+                    _sender = _userRepository.GetUserById(chat.SecondUserId);
+                    _reciever = _userRepository.GetUserById(chat.FirstUserId);
+                }
+
+                var _chat = new SelectedChatViewModel
+                {
+                    SenderId = _sender.Id,
+                    Sender = _sender,
+                    RecieverId = _reciever.Id,
+                    Reciever = _reciever,
+                };
+                chatList.Add(_chat);
+            }
+
+            if(selectedChat == null)
             {
-                chat = new Chat
+                selectedChat = new Chat
                 {
                     FirstUserId = sender.Id,
                     SecondUserId = reciever.Id,
@@ -80,10 +79,10 @@ namespace tsuHelp.Controllers
                     SecondUser = reciever
                 };
 
-                _chatRepository.Add(chat);
+                _chatRepository.Add(selectedChat);
             }
 
-            var chatMessages = _messageRepository.GetAllMessagesByChatId(chat.Id);
+            var chatMessages = _messageRepository.GetAllMessagesByChatId(selectedChat.Id);
 
             foreach (var message in chatMessages)
             {
@@ -93,7 +92,7 @@ namespace tsuHelp.Controllers
                 }
             }
 
-            var chatViewModel = new DetailChatViewModel//текущий авторизированный юзер - sender, получатель всегда reciever
+            var selectedChatViewModel = new SelectedChatViewModel//текущий авторизированный юзер - sender, получатель всегда reciever
             {
                 Messages = chatMessages,
                 Sender = sender,
@@ -102,12 +101,18 @@ namespace tsuHelp.Controllers
                 SenderId = sender.Id,
             };
 
+            var chatViewModel = new ChatViewModel
+            {
+                SelectedChat = selectedChatViewModel,
+                Chats = chatList,
+            };
+
             if (postId != -1)
             {
-                chatViewModel.Post = _postsRepository.GetPostById(postId.Value);
+                selectedChatViewModel.Post = _postsRepository.GetPostById(postId);
             }
 
-            return PartialView(chatViewModel);
+            return View(chatViewModel);
         }
     }
 }

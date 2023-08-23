@@ -2,7 +2,7 @@
 
 namespace tsuHelp.ViewModels
 {
-    public class DetailChatViewModel
+    public class SelectedChatViewModel
     {
         public List<Message>? Messages { get; set; }
         public string SenderId { get; set; }
