@@ -55,7 +55,7 @@
                 else
                 {
                     <div class="buttons-container">
-                        <a type="btn btn-success" asp-controller="Message" asp-action="Index" asp-route-recieverId="@post.UserId" asp-route-postId="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Откликнуться</a>
+                        <a type="btn btn-success" asp-controller="Chat" asp-action="Detail" asp-route-recieverId="@post.UserId" asp-route-postId="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Откликнуться</a>
                     </div>
                 }
             </div>

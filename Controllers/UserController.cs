@@ -13,15 +13,17 @@ namespace tsuHelp.Controllers
         private readonly ITagsInPostRepository _tagsInPostRepository;
         private readonly IUserSubjectsRepository _userSubjectsRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IChatRepository _chatRepository;
 
         public UserController(IPostsRepository postsRepository, IUserRepository userRepository, ITagsInPostRepository tagsInPostRepository,
-            IUserSubjectsRepository userSubjectsRepository, IHttpContextAccessor httpContextAccessor)
+            IUserSubjectsRepository userSubjectsRepository, IHttpContextAccessor httpContextAccessor, IChatRepository chatRepository)
         {
             _postsRepository = postsRepository;
             _userRepository = userRepository;
             _tagsInPostRepository = tagsInPostRepository;
             _userSubjectsRepository = userSubjectsRepository;
             _httpContextAccessor = httpContextAccessor;
+            _chatRepository = chatRepository;
         }
 
         public IActionResult Index()
@@ -78,8 +80,11 @@ namespace tsuHelp.Controllers
             //}
 
             var user = _userRepository.GetUserById(id);
+            var currentUserId = _userRepository.GetCurrentUserId();
             var userSubjects = _userSubjectsRepository.GetSubjectsByUserId(id);
             var userPosts = _postsRepository.GetPostsByUserId(id);
+
+
             foreach(var post in userPosts)
             {
                 post.Tags = _tagsInPostRepository.GetTagsByPostId(post.Id);

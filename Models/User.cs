@@ -13,9 +13,6 @@ namespace tsuHelp.Models
         public List<UserSubjects>? Subjects { get; set; } 
         public List<Post>? Posts { get; set; }
 
-        [NotMapped]
-        public List<Chat>? Chats { get; set; }
-
         public List<Message>? Messages { get; set; }
 
         public string? University { get; set; }

@@ -1,0 +1,23 @@
+﻿@using tsuHelp.ViewModels
+@model ChatInfoViewModel
+
+@* <style>
+    .chat-area-container {
+        margin-left: 100px;
+    }
+
+</style>
+ *@
+
+<div class="row">
+    <div class="col-md-4">
+        <div id="chatListContainer">
+            @await Html.PartialAsync("ChatListPartial")
+        </div>
+    </div>
+@*     <div class="col-md-8">
+        <div id="chatAreaContainer">
+            @await Html.PartialAsync("ChatAreaPartial", new ChatInfoViewModel {recieverId = Model.recieverId, postId = Model.postId})
+        </div>
+    </div> *@
+</div>

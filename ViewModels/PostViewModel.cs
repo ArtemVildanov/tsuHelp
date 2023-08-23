@@ -11,8 +11,12 @@ namespace tsuHelp.ViewModels
 
         [ForeignKey("User")]
         public string UserId { get; set; }//автор поста
-        public string CurrentUserId { get; set; }//айди текущего пользователя
         public User? User { get; set; }
+
+        public string CurrentUserId { get; set; }//айди текущего пользователя
+
         public List<TagsInPost>? Tags { get; set; } //список привязанных тегов
+
+
     }
 }

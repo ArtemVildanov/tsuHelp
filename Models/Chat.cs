@@ -16,6 +16,7 @@ namespace tsuHelp.Models
         [NotMapped]
         public User? SecondUser { get; set; }
 
-
+        [NotMapped]
+        public List<Message>? Messages { get; set; } 
     }
 }

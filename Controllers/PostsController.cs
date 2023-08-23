@@ -16,13 +16,16 @@ namespace tsuHelp.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ITagsInPostRepository _tagsInPostRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IChatRepository _chatRepository;
 
-        public PostsController(IPostsRepository postsRepository, IUserRepository userRepository, ITagsInPostRepository tagsInPostRepository, IHttpContextAccessor httpContextAccessor)
+        public PostsController(IPostsRepository postsRepository, IUserRepository userRepository, ITagsInPostRepository tagsInPostRepository, 
+            IHttpContextAccessor httpContextAccessor, IChatRepository chatRepository)
         {
             _postsRepository = postsRepository;
             _userRepository = userRepository;
             _tagsInPostRepository = tagsInPostRepository;
             _httpContextAccessor = httpContextAccessor;
+            _chatRepository = chatRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -35,7 +38,7 @@ namespace tsuHelp.Controllers
                 var userID = post.UserId;
                 var user = _userRepository.GetUserById(userID);
                 var tags = _tagsInPostRepository.GetTagsByPostId(post.Id);
-
+                
                 var newPost = new PostViewModel
                 {
                     Id = post.Id,
