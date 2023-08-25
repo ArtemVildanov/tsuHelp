@@ -1,1 +1,74 @@
-﻿
+﻿@using tsuHelp.ViewModels
+@model ChatViewModel
+
+<script src="/js/signalr/dist/browser/signalr.js"></script>
+
+<input type="hidden" id="postId" name="PostId" value="@Model.PostId" />
+<input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
+
+<div class="chat-list">
+    <ul>
+        @foreach (var chat in Model.Chats) // Замените на реальное свойство с вашим списком чатов
+        {
+            <li>
+                <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">Chat with @chat.Reciever.Name @chat.Reciever.Surname</a>
+            </li>
+        }
+    </ul>
+</div>
+
+<div class="selected-chat">
+    <!-- Здесь будет отображаться контент чата -->
+</div>
+<script src="~/js/new-chat.js"></script>
+
+
+@* <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+        const _recieverId = document.getElementById('recieverId').value;
+        if (_recieverId !== "") {
+            const response = await fetch(`/Chat/Detail?recieverId=${_recieverId}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const chatContent = await response.text();
+
+            // Очистка контейнера и вставка нового контента
+            document.querySelector('.selected-chat').innerHTML = chatContent;
+
+            const secondScriptElement = document.createElement("script");
+            secondScriptElement.src = "/js/chat.js"; // Используйте правильный путь
+            document.querySelector('.selected-chat').appendChild(secondScriptElement);
+
+        }
+
+        const chatLinks = document.querySelectorAll('.chat-link');
+
+        chatLinks.forEach(link => {
+            link.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                const recieverId = link.getAttribute('data-reciever-id');
+                const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                const chatContent = await response.text();
+
+
+
+                // Очистка контейнера и вставка нового контента
+                document.querySelector('.selected-chat').innerHTML = chatContent;
+
+
+                
+                const secondScriptElement = document.createElement("script");
+                secondScriptElement.src = "/js/chat.js"; // Используйте правильный путь
+                document.querySelector('.selected-chat').appendChild(secondScriptElement);
+
+            });
+        });
+    });
+</script> *@

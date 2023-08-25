@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using tsuHelp.Data;
 using tsuHelp.Interfaces;
 using tsuHelp.Models;
@@ -24,22 +25,10 @@ namespace tsuHelp.Controllers
             _postsRepository = postsRepository;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string recieverId = " ", int postId = -1)
         {
-            return View();
-        }
-
-
-        public IActionResult Detail(string recieverId, int postId = -1)
-        {
-
-            //если пост не был прикреплен к сообщению, то айди поста -1 
-            //пост прикреплен к сообщению если был переход по "откликнуться"
-
-            var reciever = _userRepository.GetUserById(recieverId);
-            var sender = _userRepository.GetCurrentUser();// отправитель это текущий авторизированный пользователь
-            var selectedChat = _chatRepository.GetChatByBothUsersId(reciever.Id, sender.Id);
-            var chats = _chatRepository.GetAllChatsByUserId(sender.Id);
+            var senderId = _userRepository.GetCurrentUserId();
+            var chats = _chatRepository.GetAllChatsByUserId(senderId);
 
             var chatList = new List<SelectedChatViewModel>();
             foreach (var chat in chats)//заполняем список чатов, 
@@ -47,13 +36,13 @@ namespace tsuHelp.Controllers
                 User _sender = null;   //получатель - второй пользователь чата
                 User _reciever = null;
 
-                if (chat.FirstUserId == sender.Id)
+                if (chat.FirstUserId == senderId)
                 {
                     _sender = _userRepository.GetUserById(chat.FirstUserId);
                     _reciever = _userRepository.GetUserById(chat.SecondUserId);
                 }
 
-                if (chat.SecondUserId == sender.Id)
+                if (chat.SecondUserId == senderId)
                 {
                     _sender = _userRepository.GetUserById(chat.SecondUserId);
                     _reciever = _userRepository.GetUserById(chat.FirstUserId);
@@ -68,6 +57,28 @@ namespace tsuHelp.Controllers
                 };
                 chatList.Add(_chat);
             }
+
+            var chatViewModel = new ChatViewModel
+            {
+                RecieverId = recieverId,
+                PostId = postId,
+                Chats = chatList,
+            };
+
+            return View(chatViewModel);
+        }
+
+
+        public IActionResult Detail(string recieverId, int postId = -1)
+        {
+
+            //если пост не был прикреплен к сообщению, то айди поста -1 
+            //пост прикреплен к сообщению если был переход по "откликнуться"
+
+            var reciever = _userRepository.GetUserById(recieverId);
+            var sender = _userRepository.GetCurrentUser();// отправитель это текущий авторизированный пользователь
+            var selectedChat = _chatRepository.GetChatByBothUsersId(reciever.Id, sender.Id);
+            
 
             if(selectedChat == null)
             {
@@ -101,18 +112,14 @@ namespace tsuHelp.Controllers
                 SenderId = sender.Id,
             };
 
-            var chatViewModel = new ChatViewModel
-            {
-                SelectedChat = selectedChatViewModel,
-                Chats = chatList,
-            };
+           
 
             if (postId != -1)
             {
                 selectedChatViewModel.Post = _postsRepository.GetPostById(postId);
             }
 
-            return View(chatViewModel);
+            return View(selectedChatViewModel);
         }
     }
 }
