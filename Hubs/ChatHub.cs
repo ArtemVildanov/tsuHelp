@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using tsuHelp.Data;
 using tsuHelp.Interfaces;
 using tsuHelp.Models;
 
-//namespace BlazorServerSignalRApp.Server.Hubs;
 
 public class ChatHub : Hub
 {
@@ -57,7 +57,7 @@ public class ChatHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
-    public Task SendMessageToUser(string senderId, string recieverId, string message, string postId)//отправка конкретному юзеру
+    public Task SendMessageToUser(string senderId, string recieverId, string message)//отправка конкретному юзеру
     {        
         var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
 
@@ -66,36 +66,18 @@ public class ChatHub : Hub
 
         var chatId = _chatRepository.GetChatByBothUsersId(senderId, recieverId).Id;
 
-        var post = new Post();
-        int postIdInt = int.Parse(postId);
-        string postTitle = " ";
-        string postDescription = " ";
-
         var newMessage = new Message();
-        
-        if (postIdInt != -1)//если есть прикрепленный пост 
-        {
-            newMessage.ChatId = chatId;
-            newMessage.AuthorId = senderId;
-            newMessage.Content = message;
-            newMessage.Created = DateTime.Now;
-            newMessage.PostId = postIdInt;
-
-            post = _postsRepository.GetPostById(postIdInt);
-            postTitle = post.Title;
-            postDescription = post.Description;
-        }
-        else
-        {
-            newMessage.ChatId = chatId;
-            newMessage.AuthorId = senderId;
-            newMessage.Content = message;
-            newMessage.Created = DateTime.Now;
-        }
-
+        newMessage.ChatId = chatId;
+        newMessage.AuthorId = senderId;
+        newMessage.Content = message;
+        newMessage.Created = DateTime.Now;
         
         _messageRepository.Add(newMessage);
+
+
         var timeCreated = newMessage.Created.ToString();
+        string postTitle = " ";
+        string postDescription = " ";
 
         if (recieverConnection == null)//если получатель не подключен к хабу, то сообщение загружается в бд и отображается только у отправителя
         {
@@ -105,5 +87,38 @@ public class ChatHub : Hub
 
         Clients.Client(senderConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось и у отправителя
         return Clients.Client(recieverConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось у получателя
+    }
+
+    public Task SendMessageByModal(string senderId, string recieverId, string message, string postId)
+    {
+        var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
+
+        var sender = _userRepository.GetUserById(senderId);
+
+        var chatId = _chatRepository.GetChatByBothUsersId(senderId, recieverId).Id;
+
+        int postIdInt = int.Parse(postId);
+        var post = _postsRepository.GetPostById(postIdInt);
+
+        var newMessage = new Message
+        {
+            ChatId = chatId,
+            AuthorId = senderId,
+            Content = message,
+            Created = DateTime.Now,
+            PostId = postIdInt,
+        };
+
+        var postTitle = post.Title;
+        var postDescription = post.Description;
+
+        _messageRepository.Add(newMessage);
+        var timeCreated = newMessage.Created.ToString();
+
+        if (recieverConnection == null)//если получатель не подключен к хабу, сообщение не отправляется в signalR         
+            return Task.CompletedTask;
+        
+        var recieverConnectionId = recieverConnection.ConntectionId;
+        return Clients.Client(recieverConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось у получателя   
     }
 }

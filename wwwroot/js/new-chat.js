@@ -29,43 +29,33 @@ function startConnection() {
         return console.error(err.toString());
     });
 
-    var isPostIdSet = false;
+
     document.getElementById("sendButton").addEventListener("click", function (event) {
         var senderId = document.getElementById("senderId").value;
         var message = document.getElementById("messageInput").value;
         var recieverId = document.getElementById("recieverId").value;
-        var postId = document.getElementById("postId").value;
 
-        var postIdValue = isPostIdSet ? "-1" : postId;//если есть прикрепленный к сообщению пост, то его айди отправляется только первым сообщением,
-        //если пост не был прикреплен к сообщению, то в хаб отправляем айди поста -1
-
-        connection.invoke("SendMessageToUser", senderId, recieverId, message, postIdValue).catch(function (err) {
+        connection.invoke("SendMessageToUser", senderId, recieverId, message).catch(function (err) {
             return console.error(err.toString());
         });
-
-        if (!isPostIdSet) {
-            isPostIdSet = true;
-        }
 
         event.preventDefault();
     });
 
-    document.addEventListener("DOMContentLoaded", function () {// отображение прикрепленного поста над текстовым полем
-        var postIdInput = document.getElementById("postId");
-        var postBox = document.getElementById("postBox");
-        var messageInput = document.getElementById("messageInput");
-        var sendButton = document.getElementById("sendButton");
-
-        if (postIdInput.value !== "-1") {
-            postBox.style.display = "block";
-        }
-
-        sendButton.addEventListener("click", function () {
-            if (postIdInput.value !== "-1") {
-                postBox.style.display = "none";
-            }
-        });
-    });
+    //document.addEventListener("DOMContentLoaded", function () {// отображение прикрепленного поста над текстовым полем
+    //    var postIdInput = document.getElementById("postId");
+    //    var postBox = document.getElementById("postBox");
+    //    var messageInput = document.getElementById("messageInput");
+    //    var sendButton = document.getElementById("sendButton");
+    //    if (postIdInput.value !== "-1") {
+    //        postBox.style.display = "block";
+    //    }
+    //    sendButton.addEventListener("click", function () {
+    //        if (postIdInput.value !== "-1") {
+    //            postBox.style.display = "none";
+    //        }
+    //    });
+    //});
 
     // Получите элемент списка сообщений
     //var messagesList = document.getElementById("messagesList");
@@ -89,6 +79,14 @@ function closeConnection() {
     }
 }
 
+
+function extractChatContent(html) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const chatContent = doc.querySelector('.chat-content').innerHTML;
+    return chatContent;
+}
+
 document.addEventListener("DOMContentLoaded", async function () {
     const _recieverId = document.getElementById('recieverId').value;
     if (_recieverId !== "") {
@@ -99,10 +97,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         });
-        const chatContent = await response.text();
+        const responseHtml = await response.text();
+        //const chatContent = extractChatContent(responseHtml);
 
         // Очистка контейнера и вставка нового контента
-        document.querySelector('.selected-chat').innerHTML = chatContent;
+        document.querySelector('.selected-chat').innerHTML = responseHtml;
 
         startConnection();
     }
@@ -121,10 +120,11 @@ document.addEventListener("DOMContentLoaded", async function () {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             });
-            const chatContent = await response.text();
+            const responseHtml = await response.text();
+            //const chatContent = extractChatContent(responseHtml);
 
             // Очистка контейнера и вставка нового контента
-            document.querySelector('.selected-chat').innerHTML = chatContent;
+            document.querySelector('.selected-chat').innerHTML = responseHtml;
 
             startConnection();
         });

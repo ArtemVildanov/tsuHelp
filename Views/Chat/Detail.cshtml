@@ -81,7 +81,9 @@
     @*<link rel="stylesheet" href="~/css/styles.css" />*@
 </head>
 
-
+@{
+    Layout = null;
+}
 
 <div class="selected-chat">
 
@@ -157,7 +159,7 @@
                     </div>
                     <div class="row p-1">
                         <div class="col-6 text-end">
-                            <input type="button" id="sendButton" value="Send Message" />
+                            <input type="button" class="btn btn-sm btn-outline-secondary mt-4" id="sendButton" value="Send Message" />
                         </div>
                     </div>
                 </div>

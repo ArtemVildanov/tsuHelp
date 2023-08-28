@@ -1,6 +1,8 @@
 ﻿@using tsuHelp.ViewModels
 @model List<PostViewModel>
 
+<script src="/js/signalr/dist/browser/signalr.js"></script>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -55,11 +57,38 @@
                 else
                 {
                     <div class="buttons-container">
-                        <a type="btn btn-success" asp-controller="Chat" asp-action="Index" asp-route-recieverId="@post.UserId" asp-route-postId="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Откликнуться</a>
+                        @* <a type="btn btn-success" asp-controller="Chat" asp-action="Index" asp-route-recieverId="@post.UserId" asp-route-postId="@post.Id" class="btn btn-sm btn-outline-secondary change-post-btn">Откликнуться</a> *@
+                        <input type="hidden" id="senderId" name="SenderId" value="@post.CurrentUserId" />
+                        <input type="hidden" id="recieverId" name="RecieverId" value="@post.UserId" />
+                        <input type="hidden" id="postId" name="PostId" value="@post.Id" />
+
+                        <button id="openMessageModal" class="btn btn-sm btn-outline-secondary mt-4 btn-open-message-modal">Откликнуться</button>
                     </div>
                 }
             </div>
         }
     </div>
+
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeMessageModal">&times;</span>
+            <h2>Окликнуться на предложение</h2>
+
+            <div class="message-button-container">
+                <div class="row p-1">
+                    <div class="text-input-container">
+                        <textarea class="text-input" id="messageInput"></textarea>
+                    </div>
+                </div>
+                <div class="row p-1">
+                    <div class="col-6 text-end">
+                        <input type="button" class="btn btn-sm btn-outline-secondary mt-4" id="sendButton" value="Send Message" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </body>
 </html>
+<script src="~/js/modal.js"></script>
