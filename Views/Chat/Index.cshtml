@@ -4,10 +4,10 @@
 <script src="/js/signalr/dist/browser/signalr.js"></script>
 
 <input type="hidden" id="postId" name="PostId" value="@Model.PostId" />
-<input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
+<input type="hidden" id="initialRecieverId" name="InitialRecieverId" value="@Model.RecieverId" />
 
 <div class="chat-list">
-    <ul>
+    <ul id="chatsList">
         @foreach (var chat in Model.Chats) // Замените на реальное свойство с вашим списком чатов
         {
             <li>

@@ -54,17 +54,58 @@ public class ChatHub : Hub
         var connection = _userConnectionRepository.GetConnectionByUserId(userId);
         _userConnectionRepository.Delete(connection);
 
+        string chatId = Context.GetHttpContext().Request.Query["chatId"];
+
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId);
+
         await base.OnDisconnectedAsync(exception);
     }
 
-    public Task SendMessageToUser(string senderId, string recieverId, string message)//отправка конкретному юзеру
+
+    public async Task JoinChat(string chatId)
+    {
+        // Добавляем пользователя к группе чата
+        await Groups.AddToGroupAsync(Context.ConnectionId, chatId);
+    }
+
+    public async Task LeaveChat(string chatId)
+    {
+        // Удаляем пользователя из группы чата
+        await Groups.RemoveFromGroupAsync(Context.ConnectionId, chatId);
+    }
+
+    public Task SendMessageToUser(string senderId, string recieverId, string message, string selectedChatId)//отправка конкретному юзеру
     {        
         var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
-
-        var sender = _userRepository.GetUserById(senderId);
         var senderConnectionId = Context.ConnectionId;
 
-        var chatId = _chatRepository.GetChatByBothUsersId(senderId, recieverId).Id;
+        var sender = _userRepository.GetUserById(senderId);
+        var reciever = _userRepository.GetUserById(recieverId);
+
+        //var chat = _chatRepository.GetChatByBothUsersId(senderId, recieverId);
+        //bool chatIsInitiallyNull = false;// чат первоначально существовал
+        //if (chat == null)// если такого чата еще нет, то добавим его
+        //{
+        //    chatIsInitiallyNull = true;// если чат == null, то чат не существовал изначально, а был только что создан
+        //    chat = new Chat
+        //    {
+        //        FirstUserId = senderId,
+        //        SecondUserId = recieverId,
+        //    };
+        //    _chatRepository.Add(chat);
+        //}
+
+        var chatId = int.Parse(selectedChatId);
+        if (_messageRepository.GetAllMessagesByChatId(chatId).Count == 0)// появление чата в списке чатов
+        {
+            //Clients.Group(selectedChatId).SendAsync("NewChat", sender.Name, sender.Surname, sender.Id);
+            if (recieverConnection != null)
+            {
+                Clients.Client(recieverConnection.ConntectionId).SendAsync("NewChat", sender.Name, sender.Surname, sender.Id);
+            }
+            Clients.Client(senderConnectionId).SendAsync("NewChat", reciever.Name, reciever.Surname, reciever.Id);
+
+        }
 
         var newMessage = new Message();
         newMessage.ChatId = chatId;
@@ -79,30 +120,32 @@ public class ChatHub : Hub
         string postTitle = " ";
         string postDescription = " ";
 
-        if (recieverConnection == null)//если получатель не подключен к хабу, то сообщение загружается в бд и отображается только у отправителя
-        {
-            return Clients.Client(senderConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);
-        }
-        var recieverConnectionId = recieverConnection.ConntectionId;
+        return Clients.Group(selectedChatId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);
+    }// добавить отображение нового чата
 
-        Clients.Client(senderConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось и у отправителя
-        return Clients.Client(recieverConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось у получателя
-    }
-
-    public Task SendMessageByModal(string senderId, string recieverId, string message, string postId)
+    public Task SendMessageByModal(string senderId, string recieverId, string message, string postId) // переделать под отправку через группу
     {
         var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
 
         var sender = _userRepository.GetUserById(senderId);
 
-        var chatId = _chatRepository.GetChatByBothUsersId(senderId, recieverId).Id;
+        var chat = _chatRepository.GetChatByBothUsersId(senderId, recieverId);
+        if (chat == null)// если такого чата еще нет, то добавим его
+        {
+            chat = new Chat
+            {
+                FirstUserId = senderId,
+                SecondUserId = recieverId,
+            };
+            _chatRepository.Add(chat);
+        }
 
         int postIdInt = int.Parse(postId);
         var post = _postsRepository.GetPostById(postIdInt);
 
         var newMessage = new Message
         {
-            ChatId = chatId,
+            ChatId = chat.Id,
             AuthorId = senderId,
             Content = message,
             Created = DateTime.Now,

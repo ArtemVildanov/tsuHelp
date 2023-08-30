@@ -1,12 +1,20 @@
 var connection;
 
 // ‘ункци€ дл€ открыти€ соединени€
-function startConnection() {
+async function startConnection() {
     connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
-
+    
     document.getElementById("sendButton").disabled = true;
 
+
+
+    // получение сообщений через signalR
     connection.on("ReceiveMessage", function (name, surname, message, dateTime, postTitle, postDescription) {
+
+        // name surname автора сообщени€
+        // message - текстовое содержимое сообщени€, dateTime - дата врем€ отправки 
+        // postTitle, postDescription - если прикреплен пост, то отображаем его заголовок и текстовое содержимое
+
         var li = document.createElement("li");
         li.classList.add("message"); // ƒобавл€ем класс "message"
         document.getElementById("messagesList").appendChild(li);
@@ -23,42 +31,44 @@ function startConnection() {
         scrollToBottom();
     });
 
+    connection.on("NewChat", function (name, surname, id) { // id name surname человека, который отправл€ет вам сообщение
+
+        var li = document.createElement("li");
+        document.getElementById("chatsList").appendChild(li);
+
+        var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">Chat with ${name} ${surname}</a>`
+        
+
+        li.innerHTML = chatElement;
+
+    });
+
+    const chatId = document.getElementById("selectedChatId").value; // id чата (группы), по которому будем добавл€ть пользователей в группу чата
     connection.start().then(function () {
         document.getElementById("sendButton").disabled = false;
+
+        // добавл€ем подключившегос€ в чат пользовател€ в группу 
+        connection.invoke("JoinChat", chatId).catch(function (err) {
+            return console.error(err.toString());
+        });
+
     }).catch(function (err) {
         return console.error(err.toString());
     });
 
 
+    // отправка сообщени€ по нажатию кнопки
     document.getElementById("sendButton").addEventListener("click", function (event) {
         var senderId = document.getElementById("senderId").value;
         var message = document.getElementById("messageInput").value;
         var recieverId = document.getElementById("recieverId").value;
 
-        connection.invoke("SendMessageToUser", senderId, recieverId, message).catch(function (err) {
+        connection.invoke("SendMessageToUser", senderId, recieverId, message, chatId).catch(function (err) {
             return console.error(err.toString());
         });
 
         event.preventDefault();
     });
-
-    //document.addEventListener("DOMContentLoaded", function () {// отображение прикрепленного поста над текстовым полем
-    //    var postIdInput = document.getElementById("postId");
-    //    var postBox = document.getElementById("postBox");
-    //    var messageInput = document.getElementById("messageInput");
-    //    var sendButton = document.getElementById("sendButton");
-    //    if (postIdInput.value !== "-1") {
-    //        postBox.style.display = "block";
-    //    }
-    //    sendButton.addEventListener("click", function () {
-    //        if (postIdInput.value !== "-1") {
-    //            postBox.style.display = "none";
-    //        }
-    //    });
-    //});
-
-    // ѕолучите элемент списка сообщений
-    //var messagesList = document.getElementById("messagesList");
 
     // ѕрокрутите список сообщений вниз (в самый низ) при загрузке страницы
     messagesList.scrollTop = messagesList.scrollHeight;
@@ -71,12 +81,21 @@ function startConnection() {
 }
 
 // ‘ункци€ дл€ закрыти€ соединени€
-function closeConnection() {
+async function closeConnection() {
     if (connection) {
-        connection.stop().catch(function (err) {
+
+        await leaveChat();
+        await connection.stop().catch(function (err) {
             console.error(err.toString());
         });
     }
+}
+
+async function leaveChat() {
+    var chatId = document.getElementById("selectedChatId").value;
+    await connection.invoke("LeaveChat", chatId).catch(function (err) {
+        console.error(err.toString());
+    });
 }
 
 
@@ -88,11 +107,12 @@ function extractChatContent(html) {
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const _recieverId = document.getElementById('recieverId').value;
-    if (_recieverId !== "") {
+    const initialRecieverId = document.getElementById('initialRecieverId').value;
+    if (initialRecieverId !== "") {
+
         closeConnection();
 
-        const response = await fetch(`/Chat/Detail?recieverId=${_recieverId}`, {
+        const response = await fetch(`/Chat/Detail?recieverId=${initialRecieverId}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
@@ -106,27 +126,49 @@ document.addEventListener("DOMContentLoaded", async function () {
         startConnection();
     }
 
-    const chatLinks = document.querySelectorAll('.chat-link');
+    //const chatLinks = document.querySelectorAll('.chat-link');
 
-    chatLinks.forEach(link => {
-        link.addEventListener('click', async (event) => {
-            event.preventDefault();
+    //chatLinks.forEach(link => {
+    //    link.addEventListener('click', async (event) => {
+    //        event.preventDefault();
 
-            closeConnection();
+    //        closeConnection();
 
-            const recieverId = link.getAttribute('data-reciever-id');
-            const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const responseHtml = await response.text();
-            //const chatContent = extractChatContent(responseHtml);
+    //        const recieverId = link.getAttribute('data-reciever-id');
+    //        const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
+    //            headers: {
+    //                'X-Requested-With': 'XMLHttpRequest'
+    //            }
+    //        });
+    //        const responseHtml = await response.text();
+    //        //const chatContent = extractChatContent(responseHtml);
 
-            // ќчистка контейнера и вставка нового контента
-            document.querySelector('.selected-chat').innerHTML = responseHtml;
+    //        // ќчистка контейнера и вставка нового контента
+    //        document.querySelector('.selected-chat').innerHTML = responseHtml;
 
-            startConnection();
+    //        startConnection();
+    //    });
+    //});
+});
+
+document.getElementById("chatsList").addEventListener("click", async function (event) {
+    // ѕровер€ем, что кликнули по ссылке
+    if (event.target.classList.contains("chat-link")) {        
+
+        closeConnection();
+
+        const recieverId = event.target.getAttribute('data-reciever-id');
+        const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
         });
-    });
+        const responseHtml = await response.text();
+        //const chatContent = extractChatContent(responseHtml);
+
+        // ќчистка контейнера и вставка нового контента
+        document.querySelector('.selected-chat').innerHTML = responseHtml;
+
+        startConnection();
+    }
 });

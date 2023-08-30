@@ -91,6 +91,7 @@
         <div class="container">
             <input type="hidden" id="senderId" name="SenderId" value="@Model.SenderId" />
             <input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
+            <input type="hidden" id="selectedChatId" name="SelectedChatId" value="@Model.ChatId" />
             @if (Model.Post != null)
             {
                 <input type="hidden" id="postId" name="PostId" value="@Model.Post.Id" />

@@ -33,29 +33,33 @@ namespace tsuHelp.Controllers
             var chatList = new List<SelectedChatViewModel>();
             foreach (var chat in chats)//заполняем список чатов, 
             {                          //определяем отправителя как авторизированного пользователя,
-                User _sender = null;   //получатель - второй пользователь чата
-                User _reciever = null;
-
-                if (chat.FirstUserId == senderId)
+                                       //получатель - второй пользователь чата
+                if (_messageRepository.GetAllMessagesByChatId(chat.Id).Count() != 0)// нужны только чаты в которых есть сообщения
                 {
-                    _sender = _userRepository.GetUserById(chat.FirstUserId);
-                    _reciever = _userRepository.GetUserById(chat.SecondUserId);
+                    User _reciever = null;
+                    User _sender = null;
+
+                    if (chat.FirstUserId == senderId)
+                    {
+                        _sender = _userRepository.GetUserById(chat.FirstUserId);
+                        _reciever = _userRepository.GetUserById(chat.SecondUserId);
+                    }
+
+                    if (chat.SecondUserId == senderId)
+                    {
+                        _sender = _userRepository.GetUserById(chat.SecondUserId);
+                        _reciever = _userRepository.GetUserById(chat.FirstUserId);
+                    }
+
+                    var _chat = new SelectedChatViewModel
+                    {
+                        SenderId = _sender.Id,
+                        Sender = _sender,
+                        RecieverId = _reciever.Id,
+                        Reciever = _reciever,
+                    };
+                    chatList.Add(_chat);
                 }
-
-                if (chat.SecondUserId == senderId)
-                {
-                    _sender = _userRepository.GetUserById(chat.SecondUserId);
-                    _reciever = _userRepository.GetUserById(chat.FirstUserId);
-                }
-
-                var _chat = new SelectedChatViewModel
-                {
-                    SenderId = _sender.Id,
-                    Sender = _sender,
-                    RecieverId = _reciever.Id,
-                    Reciever = _reciever,
-                };
-                chatList.Add(_chat);
             }
 
             var chatViewModel = new ChatViewModel
@@ -105,6 +109,7 @@ namespace tsuHelp.Controllers
 
             var selectedChatViewModel = new SelectedChatViewModel//текущий авторизированный юзер - sender, получатель всегда reciever
             {
+                ChatId = selectedChat.Id,
                 Messages = chatMessages,
                 Sender = sender,
                 Reciever = reciever,

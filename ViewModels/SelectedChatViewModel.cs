@@ -4,6 +4,7 @@ namespace tsuHelp.ViewModels
 {
     public class SelectedChatViewModel
     {
+        public int? ChatId { get; set; }
         public List<Message>? Messages { get; set; }
         public string SenderId { get; set; }
         public string RecieverId { get; set; }
