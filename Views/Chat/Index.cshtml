@@ -1,74 +1,45 @@
 ﻿@using tsuHelp.ViewModels
 @model ChatViewModel
 
+<style>
+    #chatsList {
+        list-style-type: none;
+    }
+
+
+
+</style>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+<link rel="stylesheet" href="~/css/chats-list.css" />
+
 <script src="/js/signalr/dist/browser/signalr.js"></script>
 
 <input type="hidden" id="postId" name="PostId" value="@Model.PostId" />
 <input type="hidden" id="initialRecieverId" name="InitialRecieverId" value="@Model.RecieverId" />
 
-<div class="chat-list">
-    <ul id="chatsList">
-        @foreach (var chat in Model.Chats) // Замените на реальное свойство с вашим списком чатов
+<div class="chat-wrapper">
+    <ul id="chatsList" class="chats-box list-group list-group-flush">
+        @foreach (var chat in Model.Chats) 
         {
-            <li>
-                <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">Chat with @chat.Reciever.Name @chat.Reciever.Surname</a>
+            <li class="list-group-item list-group-item-action">
+                @* <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">Chat with @chat.Reciever.Name @chat.Reciever.Surname</a> *@
+
+                <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">
+                    <div class="d-flex w-100 align-items-center justify-content-between">
+                        <strong class="mb-1">@chat.Reciever.Name @chat.Reciever.Surname</strong>
+                        @* <small class="text-body-secondary">Tues</small> *@
+                    </div>
+                    <div id="@(chat.ChatId)" class="col-10 mb-1 small latest-message">@chat.LatestMessage.Content</div>
+                </a>
             </li>
         }
     </ul>
+    <div class="messages-box">
+        <!-- Здесь будет отображаться контент чата -->
+    </div>
 </div>
 
-<div class="selected-chat">
-    <!-- Здесь будет отображаться контент чата -->
-</div>
 <script src="~/js/new-chat.js"></script>
 
 
-@* <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-        const _recieverId = document.getElementById('recieverId').value;
-        if (_recieverId !== "") {
-            const response = await fetch(`/Chat/Detail?recieverId=${_recieverId}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
-            const chatContent = await response.text();
-
-            // Очистка контейнера и вставка нового контента
-            document.querySelector('.selected-chat').innerHTML = chatContent;
-
-            const secondScriptElement = document.createElement("script");
-            secondScriptElement.src = "/js/chat.js"; // Используйте правильный путь
-            document.querySelector('.selected-chat').appendChild(secondScriptElement);
-
-        }
-
-        const chatLinks = document.querySelectorAll('.chat-link');
-
-        chatLinks.forEach(link => {
-            link.addEventListener('click', async (event) => {
-                event.preventDefault();
-
-                const recieverId = link.getAttribute('data-reciever-id');
-                const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                const chatContent = await response.text();
-
-
-
-                // Очистка контейнера и вставка нового контента
-                document.querySelector('.selected-chat').innerHTML = chatContent;
-
-
-                
-                const secondScriptElement = document.createElement("script");
-                secondScriptElement.src = "/js/chat.js"; // Используйте правильный путь
-                document.querySelector('.selected-chat').appendChild(secondScriptElement);
-
-            });
-        });
-    });
-</script> *@

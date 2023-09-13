@@ -8,6 +8,8 @@ namespace tsuHelp.Interfaces
 
         List<Message> GetAllMessagesByUserId(string userId);
 
+        Message GetLatestMessageByChatId(int chatId);
+
         bool Add(Message message);
 
         bool Update(Message message);

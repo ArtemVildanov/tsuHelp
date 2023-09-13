@@ -1,0 +1,70 @@
+﻿.chat-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+
+#chatsList {
+    list-style-type: none;
+    padding: 0;
+    height: 400px;
+    overflow-y: scroll;
+}
+
+    #chatsList:hover::-webkit-scrollbar {
+        width: 8px; /* Ширина скроллбара */
+    }
+
+.chats-box {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    width: 380px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 700px;
+
+}
+
+.chat-link {
+    text-decoration: none; /* Убрать подчеркивание текста внутри ссылки */
+    color: black;
+}
+
+/* Стилизация скроллбара */
+#chatsList::-webkit-scrollbar {
+    width: 0px;
+
+}
+
+#chatsList::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* Цвет фона трека (полосы) */
+}
+
+#chatsList::-webkit-scrollbar-thumb {
+    background-color: #888; /* Цвет ползунка скроллбара */
+    border-radius: 4px; /* Закругление углов ползунка */
+
+}
+
+    #chatsList::-webkit-scrollbar-thumb:hover {
+        background-color: #555; /* Цвет ползунка при наведении курсора */
+        width: 10px; /* Ширина скроллбара */
+        
+    }
+
+
+.messages-box {
+
+    margin-left:20px;
+}
+
+.latest-message {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+}

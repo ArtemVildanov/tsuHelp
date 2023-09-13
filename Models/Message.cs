@@ -21,5 +21,9 @@ namespace tsuHelp.Models
         public Post? Post { get; set; }
 
         public DateTime? Created { get; set; }
+        [NotMapped]
+        public string? TimeCreated { get; set; }
+        [NotMapped]
+        public string? DateCreated { get; set; }
     }
 }

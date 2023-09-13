@@ -51,16 +51,26 @@ namespace tsuHelp.Controllers
                         _reciever = _userRepository.GetUserById(chat.FirstUserId);
                     }
 
+                    var latestChatMessage = _messageRepository.GetLatestMessageByChatId(chat.Id);
                     var _chat = new SelectedChatViewModel
                     {
+                        ChatId = chat.Id,
+                        LatestMessage = latestChatMessage,
+                        LatestMessageDate = latestChatMessage.Created, 
                         SenderId = _sender.Id,
                         Sender = _sender,
                         RecieverId = _reciever.Id,
                         Reciever = _reciever,
+
                     };
+                    
+
                     chatList.Add(_chat);
                 }
             }
+
+            //chatList.OrderBy(c => c.LatestMessageDate).ToList();// упорядочить чаты по дате последнего сообщения
+            chatList.Sort((x, y) => DateTime.Compare(x.LatestMessageDate.Value, y.LatestMessageDate.Value));// упорядочить чаты по дате последнего сообщения
 
             var chatViewModel = new ChatViewModel
             {
@@ -98,9 +108,11 @@ namespace tsuHelp.Controllers
             }
 
             var chatMessages = _messageRepository.GetAllMessagesByChatId(selectedChat.Id);
-
             foreach (var message in chatMessages)
             {
+                message.TimeCreated = message.Created.Value.ToString("t");// время отправки сообщения
+                message.DateCreated = message.Created.Value.ToString("D");// дата отправки сообщения
+
                 if (message.PostId != null)
                 {
                     message.Post = _postsRepository.GetPostById(message.PostId.Value);

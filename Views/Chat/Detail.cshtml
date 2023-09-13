@@ -5,40 +5,89 @@
     <style>
 
         .messages-card {
-            width: 700px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items:start;
+
         }
 
         /* Стили для списка сообщений */
         #messagesList {
             list-style-type: none;
-            padding: 0;
-            max-height: 500px;
             overflow-y: scroll;
-/*            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);*/
-
-
+            padding: 15px 15px;
+            margin: 0; /* Убираем внешний отступ у списка (если есть) */
         }
 
-        /* Стили для отдельного сообщения */
-        .message {
+        /* Стилизация скроллбара */
+            #messagesList::-webkit-scrollbar {
+                width: 8px;
+            }
 
-            margin: 10px 15px;
-            padding: 10px;
-            border-radius: 5px;
+            #messagesList::-webkit-scrollbar-track {
+                background-color: #f1f1f1; /* Цвет фона трека (полосы) */
+            }
+
+            #messagesList::-webkit-scrollbar-thumb {
+                background-color: #888; /* Цвет ползунка скроллбара */
+                border-radius: 4px; /* Закругление углов ползунка */
+            }
+
+        .messages-container {
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 15px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            height: 500px;
+            width: 700px;
+            
         }
+
+        .messages-positionary {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            overflow-wrap: break-word;
+            padding: 5px 10px; 
+            border-radius: 10px;
+            max-width: 600px;
+        }
+
+        .blue {
+            background-color: #95a9f4;
+        }
+
+        .gray {
+            background-color: #ccc;
+        }
+
+        .right {
+            align-self: flex-end;
+            
+        }
+
+        .left {
+            align-self: flex-start;
+            
+        }
+
+        .center {
+            align-self: center;
+        }
+
+        /* .message-recieved {
+            background-color: #ccc;
+            padding: 10px;
+            max-width: 80%;
+            word-wrap: break-word; 
+            display: inline-block;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2); 
+            border-radius: 15px;
+            min-width: 100px;
+        } */
 
         .post {
-            margin: 10px 0;
             padding: 10px;
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -46,35 +95,36 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .all-messages {
-            width: 650px;
 
-        }
             
         .message-button-container {
             align-items: flex-start;
             flex-direction: row;
             display: flex;
             align-items: flex-start;
+            margin-top: 15px;
         }
 
-        .message-button-post-container {
-            align-items: flex-start;
-            flex-direction: column;
-            display: flex;
-            align-items: flex-start;
-        }
 
         .text-input {
             width: 400px;
             height: 50px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
         .text-input-container {
             display: flex;
-            align-items: flex-start;
+
+        }
+
+        .send-message-button {
+            display: flex;
+            align-self: center;
+            margin-left: 5px;
         }
 
     </style>
@@ -85,107 +135,103 @@
     Layout = null;
 }
 
-<div class="selected-chat">
 
-    <div class="messages-card">
-        <div class="container">
-            <input type="hidden" id="senderId" name="SenderId" value="@Model.SenderId" />
-            <input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
-            <input type="hidden" id="selectedChatId" name="SelectedChatId" value="@Model.ChatId" />
-            @if (Model.Post != null)
+
+<div class="messages-card">
+    <input type="hidden" id="currentUserId" name="CurrentUserId" value="@Model.SenderId" />
+    <input type="hidden" id="senderId" name="SenderId" value="@Model.SenderId" />
+    <input type="hidden" id="recieverId" name="RecieverId" value="@Model.RecieverId" />
+    <input type="hidden" id="selectedChatId" name="SelectedChatId" value="@Model.ChatId" />
+    @if (Model.Post != null)
+    {
+        <input type="hidden" id="postId" name="PostId" value="@Model.Post.Id" />
+    }
+    else
+    {
+        <input type="hidden" id="postId" name="PostId" value="-1" />
+    }
+
+    <ul id="messagesList" class="messages-container messages-positionary">
+        
+        @{
+            string currentMessageDate = " ";
+            string previousMessageDate = " ";
+            string messageDate = " ";
+        }
+        @if (Model.Messages != null)
+        {
+            foreach (var message in Model.Messages)
             {
-                <input type="hidden" id="postId" name="PostId" value="@Model.Post.Id" />
-            }
-            else
-            {
-                <input type="hidden" id="postId" name="PostId" value="-1" />
-            }
+                @* string authorName = message.AuthorId == Model.SenderId
+                ? $"{Model.Sender.Name} {Model.Sender.Surname}"
+                : $"{Model.Reciever.Name} {Model.Reciever.Surname}"; *@
 
-            <div class="row p-1">
-                <div class="all-messages">
-                    <ul id="messagesList">
-                        @if (Model.Messages != null)
-                        {
-                            foreach (var message in Model.Messages)
-                            {
-                                string authorName = message.AuthorId == Model.SenderId
-                                ? $"{Model.Sender.Name} {Model.Sender.Surname}"
-                                : $"{Model.Reciever.Name} {Model.Reciever.Surname}";
-
-
-
-
-
-                                <li class="message">
-                                    @if (message.Post != null)
-                                    {
-                                        <div class="post">
-                                            <strong>@message.Post.Title</strong>
-                                            <br />
-                                            @message.Post.Description
-                                            <br />
-                                        </div>
-                                    }
-                                    <strong>@authorName</strong>
-                                    <br />
-                                    @message.Content
-                                    <br />
-                                    <span class="message-time">@message.Created</span>
-                                </li>
-                            }
-                        }
-                    </ul>
-                </div>
-            </div>
-
-
-
-            <div class="message-button-post-container">
-
-                @if (Model.Post != null)
+                currentMessageDate = message.DateCreated;
+                @if (currentMessageDate != previousMessageDate)
                 {
-                    <div id="postBox" class="message">
-                        <strong>@Model.Post.Title</strong>
-                        <br />
-                        @Model.Post.Description
-                        <br />
-                    </div>
+                    previousMessageDate = currentMessageDate;
+                    messageDate = currentMessageDate;
+                    <li class="small center">@messageDate</li>
                 }
 
-                <div class="message-button-container">
-                    <div class="row p-1">
-                        <div class="text-input-container">
-                            <textarea class="text-input" id="messageInput"></textarea>
-                        </div>
-                    </div>
-                    <div class="row p-1">
-                        <div class="col-6 text-end">
-                            <input type="button" class="btn btn-sm btn-outline-secondary mt-4" id="sendButton" value="Send Message" />
-                        </div>
-                    </div>
-                </div>
+                @if (message.AuthorId == Model.SenderId)
+                {
+                    //string authorName = $"{Model.Sender.Name} {Model.Sender.Surname}";
+                    
+                    
+                    @if (message.Post != null)
+                    {
+                        <li class="post">
+                            <strong>@message.Post.Title</strong>
+                            <br />
+                            @message.Post.Description
+                            <br />
+                        </li>
+                    }
+                    <li class="message blue right">
+                        @message.Content
+                    </li>
+                    <li class="small right mb-3">@message.TimeCreated</li>
+                    
+                }
+
+                @if (message.AuthorId == Model.RecieverId)
+                {
+                    string authorName = $"{Model.Reciever.Name} {Model.Reciever.Surname}";
+
+                    @if (message.Post != null)
+                    {
+                        <li class="post">
+                            <strong>@message.Post.Title</strong>
+                            <br />
+                            @message.Post.Description
+                            <br />
+                        </li>
+                    }
+                    <li class="message gray left">
+                        @message.Content
+                    </li>
+                    <li class="small left mb-3">@message.TimeCreated</li>
+ 
+                }
+            }
+        }
+    </ul>
+    <input type="hidden" id="lastMessageDate" name="LastMessageDate" value="@currentMessageDate" />
+
+    <div class="message-button-container">
+        <div class="row p-1">
+            <div class="text-input-container">
+                <textarea class="text-input" id="messageInput"></textarea>
+            </div>
+        </div>
+        <div class="send-message-button">
+            <div class="col-6 text-end">
+                <input type="button" class="btn btn-sm btn-outline-secondary" id="sendButton" value="Send Message"/>
             </div>
         </div>
     </div>
-    @* <script src="~/js/signalr/dist/browser/signalr.js" defer></script>
-    <script src="~/js/chat.js" defer></script> *@
-   
 </div>
-
-@* <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Подключение SignalR и выполнение chat.js
-        var signalRScript = document.createElement("script");
-        signalRScript.src = "/js/signalr/dist/browser/signalr.js";
-        signalRScript.onload = function () {
-            var chatScript = document.createElement("script");
-            chatScript.src = "/js/chat.js";
-            document.body.appendChild(chatScript);
-        };
-        document.body.appendChild(signalRScript);
-    });
-</script> *@
-
 
 
 

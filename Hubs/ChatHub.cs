@@ -75,7 +75,7 @@ public class ChatHub : Hub
     }
 
     public Task SendMessageToUser(string senderId, string recieverId, string message, string selectedChatId)//отправка конкретному юзеру
-    {        
+    {
         var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
         var senderConnectionId = Context.ConnectionId;
 
@@ -101,9 +101,9 @@ public class ChatHub : Hub
             //Clients.Group(selectedChatId).SendAsync("NewChat", sender.Name, sender.Surname, sender.Id);
             if (recieverConnection != null)
             {
-                Clients.Client(recieverConnection.ConntectionId).SendAsync("NewChat", sender.Name, sender.Surname, sender.Id);
+                Clients.Client(recieverConnection.ConntectionId).SendAsync("NewChat", selectedChatId, message, sender.Name, sender.Surname, sender.Id);
             }
-            Clients.Client(senderConnectionId).SendAsync("NewChat", reciever.Name, reciever.Surname, reciever.Id);
+            Clients.Client(senderConnectionId).SendAsync("NewChat", selectedChatId, message, reciever.Name, reciever.Surname, reciever.Id);
 
         }
 
@@ -112,15 +112,20 @@ public class ChatHub : Hub
         newMessage.AuthorId = senderId;
         newMessage.Content = message;
         newMessage.Created = DateTime.Now;
-        
         _messageRepository.Add(newMessage);
 
-
-        var timeCreated = newMessage.Created.ToString();
+        string timeCreated = newMessage.Created.Value.ToString("t");// время отправки сообщения
+        string dateCreated = newMessage.Created.Value.ToString("D");// дата отправки сообщения
         string postTitle = " ";
         string postDescription = " ";
 
-        return Clients.Group(selectedChatId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);
+        Clients.Client(senderConnectionId).SendAsync("ReceiveMessageInChatsList", message, selectedChatId);//отображение сообщания в списке чатов у отправителя
+        if (recieverConnection != null)
+        {
+            Clients.Client(recieverConnection.ConntectionId).SendAsync("ReceiveMessageInChatsList", message, selectedChatId);//отображение сообщания в списке чатов у получателя
+        }
+
+        return Clients.Group(selectedChatId).SendAsync("ReceiveMessage", senderId, message, timeCreated, dateCreated, postTitle, postDescription);
     }// добавить отображение нового чата
 
     public Task SendMessageByModal(string senderId, string recieverId, string message, string postId) // переделать под отправку через группу

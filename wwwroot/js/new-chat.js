@@ -1,3 +1,5 @@
+"use strict"
+
 var connection;
 
 // Функция для открытия соединения
@@ -6,38 +8,72 @@ async function startConnection() {
     
     document.getElementById("sendButton").disabled = true;
 
-
+    connection.on("ReceiveMessageInChatsList", function (message, chatId) {
+        var element = document.getElementById(chatId);
+        if (element) {
+            element.textContent = message;
+        }
+    });
 
     // получение сообщений через signalR
-    connection.on("ReceiveMessage", function (name, surname, message, dateTime, postTitle, postDescription) {
+    let lastMessageDate = "";// запоминаем дату последнего сообщения
+    connection.on("ReceiveMessage", function (senderId, message, time, date, postTitle, postDescription) {
 
-        // name surname автора сообщения
+        // senderId автора сообщения
         // message - текстовое содержимое сообщения, dateTime - дата время отправки 
         // postTitle, postDescription - если прикреплен пост, то отображаем его заголовок и текстовое содержимое
 
         var li = document.createElement("li");
-        li.classList.add("message"); // Добавляем класс "message"
+        li.classList.add("messages-positionary"); // Добавляем класс 
         document.getElementById("messagesList").appendChild(li);
 
-        var messageContent = `<strong>${name} ${surname}</strong><br>${message}<br><span class="message-time">${dateTime}</span>`;
+        let messageDate = "";
+        if (lastMessageDate !== date) { // сравниваем дату полученного сообщения с последней запомненной датой
+            lastMessageDate = document.getElementById("lastMessageDate").value;
+            if (lastMessageDate !== date) { // сравниваем дату полученного сообщения с датой последнего сообщения из бд
+                messageDate = `<li class="small center">${date}</li>`;
+                lastMessageDate = date;
+            }
+        }
+
+        let messageContent;
+        const currentUserId = document.getElementById("currentUserId").value; // айди пользователя, открывшего страницу
+
+        if (senderId === currentUserId) { // если отправитель сообщения - текущий пользователь - то сообщение справа и синее
+            messageContent = `<li class="message blue right"> ${message} </li>
+                              <li class="small right mb-3"> ${time} </li>`;
+        }
+
+        if (senderId !== currentUserId) { // если оптравитель не текущий пользователь - то сообщение слева и серое
+            messageContent = `<li class="message gray left"> ${message} </li>
+                              <li class="small left mb-3"> ${time} </li>`;
+        }
+        
 
         if (postTitle !== " " && postDescription !== " ") {
             var postContent = `<div class="post"><strong>${postTitle}</strong><br>${postDescription}</div>`;
-            li.innerHTML = postContent + messageContent;
+            li.innerHTML = messageDate + postContent + messageContent;
         } else {
-            li.innerHTML = messageContent;
+            li.innerHTML = messageDate + messageContent;
         }
 
         scrollToBottom();
     });
 
-    connection.on("NewChat", function (name, surname, id) { // id name surname человека, который отправляет вам сообщение
+    connection.on("NewChat", function (chatId, latestMessage, name, surname, id) { // id name surname человека, который отправляет вам сообщение
 
         var li = document.createElement("li");
+        li.classList.add("list-group-item");
+        li.classList.add("list-group-item-action");
         document.getElementById("chatsList").appendChild(li);
 
-        var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">Chat with ${name} ${surname}</a>`
-        
+        //var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">Chat with ${name} ${surname}</a>`
+        var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">
+                               <div class="d-flex w-100 align-items-center justify-content-between">
+                                   <strong class="mb-1">${name} ${surname}</strong>
+                               </div>
+                               <div id=${chatId} class="col-10 mb-1 small latest-message">${latestMessage}</div>
+                           </a>`
 
         li.innerHTML = chatElement;
 
@@ -63,9 +99,13 @@ async function startConnection() {
         var message = document.getElementById("messageInput").value;
         var recieverId = document.getElementById("recieverId").value;
 
-        connection.invoke("SendMessageToUser", senderId, recieverId, message, chatId).catch(function (err) {
-            return console.error(err.toString());
-        });
+        if (message !== "") {
+            connection.invoke("SendMessageToUser", senderId, recieverId, message, chatId).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+
+        clearTextarea();
 
         event.preventDefault();
     });
@@ -98,12 +138,12 @@ async function leaveChat() {
     });
 }
 
+function clearTextarea() { // очистка поля ввода при отправке сообщения
+    // Получаем элемент textarea по его ID
+    var textarea = document.getElementById("messageInput");
 
-function extractChatContent(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const chatContent = doc.querySelector('.chat-content').innerHTML;
-    return chatContent;
+    // Очищаем содержимое textarea
+    textarea.value = "";
 }
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -121,43 +161,20 @@ document.addEventListener("DOMContentLoaded", async function () {
         //const chatContent = extractChatContent(responseHtml);
 
         // Очистка контейнера и вставка нового контента
-        document.querySelector('.selected-chat').innerHTML = responseHtml;
+        document.querySelector('.messages-box').innerHTML = responseHtml;
 
         startConnection();
     }
 
-    //const chatLinks = document.querySelectorAll('.chat-link');
-
-    //chatLinks.forEach(link => {
-    //    link.addEventListener('click', async (event) => {
-    //        event.preventDefault();
-
-    //        closeConnection();
-
-    //        const recieverId = link.getAttribute('data-reciever-id');
-    //        const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
-    //            headers: {
-    //                'X-Requested-With': 'XMLHttpRequest'
-    //            }
-    //        });
-    //        const responseHtml = await response.text();
-    //        //const chatContent = extractChatContent(responseHtml);
-
-    //        // Очистка контейнера и вставка нового контента
-    //        document.querySelector('.selected-chat').innerHTML = responseHtml;
-
-    //        startConnection();
-    //    });
-    //});
 });
 
 document.getElementById("chatsList").addEventListener("click", async function (event) {
     // Проверяем, что кликнули по ссылке
-    if (event.target.classList.contains("chat-link")) {        
+    if (event.target.closest(".chat-link")) {        
 
         closeConnection();
 
-        const recieverId = event.target.getAttribute('data-reciever-id');
+        const recieverId = event.target.closest(".chat-link").getAttribute('data-reciever-id');
         const response = await fetch(`/Chat/Detail?recieverId=${recieverId}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -167,7 +184,7 @@ document.getElementById("chatsList").addEventListener("click", async function (e
         //const chatContent = extractChatContent(responseHtml);
 
         // Очистка контейнера и вставка нового контента
-        document.querySelector('.selected-chat').innerHTML = responseHtml;
+        document.querySelector('.messages-box').innerHTML = responseHtml;
 
         startConnection();
     }

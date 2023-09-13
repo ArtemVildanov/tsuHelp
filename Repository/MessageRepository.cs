@@ -43,6 +43,18 @@ namespace tsuHelp.Repository
             throw new NotImplementedException();
         }
 
+        public Message GetLatestMessageByChatId(int chatId)
+        {
+            var message = _context.Messages
+                    .Where(c => c.ChatId == chatId)
+                    .OrderByDescending(c => c.Id)
+                    .FirstOrDefault();
+
+            return message;
+        }
+
+
+
         public bool Save()
         {
             var saved = _context.SaveChanges();
