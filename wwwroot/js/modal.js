@@ -27,21 +27,37 @@ document.getElementById("sendButton").addEventListener("click", async function (
         var recieverId = document.getElementById("recieverId").value;
         var postId = document.getElementById("postId").value;
 
-        connection.onclose(() => {
-            console.log("Connection closed unexpectedly.");
+        connection.start().catch(function (err) {// запускаем соединение
+            console.error(err.toString());
+        });
+     
+        connection.invoke("GetChatId", senderId, recieverId).catch(function (err) {// запрашиваем chatId
+            return console.error(err.toString());
         });
 
-        await connection.start();
+        let chatId;
+        connection.on("TakeChatId", function (incomeChatId) {// получаем chatId
+            chatId = incomeChatId;
+        })
 
-        // В этом месте можно добавить код для отслеживания состояния соединения.
-        // Например, вы можете использовать connection.state и проверять, что оно 'Connected' перед отправкой.
-        if (connection.state === signalR.HubConnectionState.Connected) {
-            await connection.invoke("SendMessageByModal", senderId, recieverId, message, postId);
-        } else {
-            console.log("Connection is not in the 'Connected' state.");
+        connection.invoke("JoinChat", chatId).catch(function (err) {// подключаемся к группе чата
+            return console.error(err.toString());
+        });
+
+        if (message !== "") {
+            connection.invoke("SendMessageByModal", senderId, recieverId, message, chatId, postId).catch(function (err) {// отправляем сообщение
+                return console.error(err.toString());
+            });
         }
 
-        await connection.stop();
+        connection.invoke("LeaveChat", chatId).catch(function (err) {// отключаемся от группы
+            console.error(err.toString());
+        });
+
+        connection.stop().catch(function (err) {// закрываем соединение
+            console.error(err.toString());
+        });
+
     } catch (err) {
         console.error(err.toString());
     }

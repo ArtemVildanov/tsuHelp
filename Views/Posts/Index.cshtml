@@ -62,14 +62,34 @@
                         <input type="hidden" id="recieverId" name="RecieverId" value="@post.UserId" />
                         <input type="hidden" id="postId" name="PostId" value="@post.Id" />
 
-                        <button id="openMessageModal" class="btn btn-sm btn-outline-secondary mt-4 btn-open-message-modal">Откликнуться</button>
+                        <button type="button" id="openMessageModal" class="btn btn-sm btn-outline-secondary mt-4 btn-open-message-modal" data-bs-toggle="modal" data-bs-target="#respondModal">
+                            Откликнуться
+                        </button>
                     </div>
                 }
             </div>
         }
     </div>
 
-    <div id="messageModal" class="modal">
+    <div class="modal fade" id="respondModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Откликнуться</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-primary" id="sendButton">Отправить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* <div id="messageModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="closeMessageModal">&times;</span>
             <h2>Окликнуться на предложение</h2>
@@ -88,7 +108,7 @@
             </div>
 
         </div>
-    </div>
+    </div> *@
 </body>
 </html>
 <script src="~/js/modal.js"></script>

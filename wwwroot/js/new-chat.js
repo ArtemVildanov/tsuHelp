@@ -9,10 +9,27 @@ async function startConnection() {
     document.getElementById("sendButton").disabled = true;
 
     connection.on("ReceiveMessageInChatsList", function (message, chatId) {
-        var element = document.getElementById(chatId);
-        if (element) {
-            element.textContent = message;
+        //var element = document.getElementById(chatId);
+        //if (element) {
+        //    element.textContent = message;
+        //}
+        let chat = document.getElementById(chatId);
+        let chatsList = document.getElementById("chatsList");
+
+        if (chat && chatsList) {
+
+            // добавляем чат в начало списка
+            chatsList.removeChild(chat);
+            chatsList.prepend(chat);
+
+            // обновляем последнее пришедшее сообщение
+            let latestMessageElement = chat.querySelector(".latest-message");
+            if (latestMessageElement) {
+                latestMessageElement.textContent = message;
+            }
         }
+
+        
     });
 
     // получение сообщений через signalR
@@ -65,14 +82,17 @@ async function startConnection() {
         var li = document.createElement("li");
         li.classList.add("list-group-item");
         li.classList.add("list-group-item-action");
-        document.getElementById("chatsList").appendChild(li);
+        li.id = chatId;
+
+        //document.getElementById("chatsList").appendChild(li);
+        document.getElementById("chatsList").prepend(li);
 
         //var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">Chat with ${name} ${surname}</a>`
         var chatElement = `<a href="#" data-reciever-id=${id} class="chat-link">
                                <div class="d-flex w-100 align-items-center justify-content-between">
                                    <strong class="mb-1">${name} ${surname}</strong>
                                </div>
-                               <div id=${chatId} class="col-10 mb-1 small latest-message">${latestMessage}</div>
+                               <div class="col-10 mb-1 small latest-message">${latestMessage}</div>
                            </a>`
 
         li.innerHTML = chatElement;
@@ -146,6 +166,8 @@ function clearTextarea() { // очистка поля ввода при отправке сообщения
     textarea.value = "";
 }
 
+
+let previousSelectedChatId;
 document.addEventListener("DOMContentLoaded", async function () {
     const initialRecieverId = document.getElementById('initialRecieverId').value;
     if (initialRecieverId !== "") {
@@ -181,11 +203,35 @@ document.getElementById("chatsList").addEventListener("click", async function (e
             }
         });
         const responseHtml = await response.text();
-        //const chatContent = extractChatContent(responseHtml);
 
         // Очистка контейнера и вставка нового контента
         document.querySelector('.messages-box').innerHTML = responseHtml;
 
+        
+
+        let previousSelectedChat = document.getElementById(previousSelectedChatId);
+        if (previousSelectedChat) {
+            previousSelectedChat.classList.remove("list-group-item-primary");
+        }
+        
+        const selectedChatId = document.getElementById("selectedChatId").value;
+        let selectedChat = document.getElementById(selectedChatId);
+        if (selectedChat) {
+            selectedChat.classList.add("list-group-item-primary");
+        }
+        
+        previousSelectedChatId = selectedChatId;
+
         startConnection();
     }
+});
+
+const chatsList = document.getElementById("chatsList");
+
+chatsList.addEventListener("mouseenter", () => {
+    chatsList.style.overflowY = "scroll"; // Показать скроллбар
+});
+
+chatsList.addEventListener("mouseleave", () => {
+    chatsList.style.overflowY = "hidden"; // Скрыть скроллбар
 });

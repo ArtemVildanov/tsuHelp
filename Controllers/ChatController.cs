@@ -71,6 +71,7 @@ namespace tsuHelp.Controllers
 
             //chatList.OrderBy(c => c.LatestMessageDate).ToList();// упорядочить чаты по дате последнего сообщения
             chatList.Sort((x, y) => DateTime.Compare(x.LatestMessageDate.Value, y.LatestMessageDate.Value));// упорядочить чаты по дате последнего сообщения
+            chatList.Reverse();
 
             var chatViewModel = new ChatViewModel
             {

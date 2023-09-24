@@ -1,14 +1,6 @@
 ﻿@using tsuHelp.ViewModels
 @model ChatViewModel
 
-<style>
-    #chatsList {
-        list-style-type: none;
-    }
-
-
-
-</style>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 <link rel="stylesheet" href="~/css/chats-list.css" />
@@ -22,7 +14,7 @@
     <ul id="chatsList" class="chats-box list-group list-group-flush">
         @foreach (var chat in Model.Chats) 
         {
-            <li class="list-group-item list-group-item-action">
+            <li id="@chat.ChatId" class="list-group-item list-group-item-action">
                 @* <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">Chat with @chat.Reciever.Name @chat.Reciever.Surname</a> *@
 
                 <a href="#" data-reciever-id="@chat.RecieverId" class="chat-link">
@@ -30,7 +22,7 @@
                         <strong class="mb-1">@chat.Reciever.Name @chat.Reciever.Surname</strong>
                         @* <small class="text-body-secondary">Tues</small> *@
                     </div>
-                    <div id="@(chat.ChatId)" class="col-10 mb-1 small latest-message">@chat.LatestMessage.Content</div>
+                    <div class="col-10 mb-1 small latest-message">@chat.LatestMessage.Content</div>
                 </a>
             </li>
         }

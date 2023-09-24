@@ -128,7 +128,7 @@ public class ChatHub : Hub
         return Clients.Group(selectedChatId).SendAsync("ReceiveMessage", senderId, message, timeCreated, dateCreated, postTitle, postDescription);
     }// добавить отображение нового чата
 
-    public Task SendMessageByModal(string senderId, string recieverId, string message, string postId) // переделать под отправку через группу
+    public Task SendMessageByModal(string senderId, string recieverId, string message, string chatId, string postId) // переделать под отправку через группу -------------------------------------
     {
         var recieverConnection = _userConnectionRepository.GetConnectionByUserId(recieverId);
 
@@ -168,5 +168,11 @@ public class ChatHub : Hub
         
         var recieverConnectionId = recieverConnection.ConntectionId;
         return Clients.Client(recieverConnectionId).SendAsync("ReceiveMessage", sender.Name, sender.Surname, message, timeCreated, postTitle, postDescription);//чтобы сообщение отобразилось у получателя   
+    }
+
+    public Task GetChatId (string senderId, string recieverId)
+    {
+        var chatId = _chatRepository.GetChatByBothUsersId(senderId, recieverId);
+        return Clients.Client(Context.ConnectionId).SendAsync("TakeChatId", chatId);
     }
 }
